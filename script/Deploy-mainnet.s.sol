@@ -44,7 +44,7 @@ contract MainnetDeployEnzoNetwork is Script {
         EnzoBTC _enzoBTC = new EnzoBTC(address(_EnzoNetwork), _dao);
         // transfer owner
         _enzoBTC.transferOwnership(_owner);
-        console.log("=====oBTC=====", address(_enzoBTC));
+        console.log("=====enzoBTC=====", address(_enzoBTC));
 
         address _mintSecurityImple = address(new MintSecurity());
         MintSecurity _mintSecurity = MintSecurity(payable(new ERC1967Proxy(_mintSecurityImple, "")));

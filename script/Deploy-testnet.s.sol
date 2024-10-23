@@ -32,7 +32,7 @@ contract HoleskyDeployEnzoNetwork is Script {
         console.log("=====EnzoNetwork=====", address(_EnzoNetwork));
 
         EnzoBTC _enzoBTC = new EnzoBTC(address(_EnzoNetwork), _dao);
-        console.log("=====oBTC=====", address(_enzoBTC));
+        console.log("=====enzoBTC=====", address(_enzoBTC));
 
         address _mintSecurityImple = address(new MintSecurity());
         MintSecurity _mintSecurity = MintSecurity(payable(new ERC1967Proxy(_mintSecurityImple, "")));
