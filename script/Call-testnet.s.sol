@@ -5,8 +5,8 @@ import "forge-std/console.sol";
 import "forge-std/Script.sol";
 import "src/core/MintSecurity.sol";
 
-// forge script script/Call-testnet.s.sol:HoleskyCallObelisk  --rpc-url $HOLESKY_RPC_URL --broadcast
-contract HoleskyCallObelisk is Script {
+// forge script script/Call-testnet.s.sol:HoleskyCallEnzoNetwork  --rpc-url $HOLESKY_RPC_URL --broadcast
+contract HoleskyCallEnzoNetwork is Script {
     function setUp() public {}
 
     function run() public {
@@ -30,7 +30,6 @@ contract HoleskyCallObelisk is Script {
             r: 0x40206b106a5a91938b01e645413dae48e5fb3c7b99d605f4e8d66a0fb11784fe,
             vs: 0x76921c93ad395e0bbb972500d730a76e49a5d238b4fbad674501fb0df5d62f7c
         });
-
 
         bytes32 msgHash =
             mintSecurity.calcMsgHash(token, txHash, destAddr, stakingOutputIdx, inclusionHeight, stakingAmount);

@@ -7,7 +7,7 @@ import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title Whitelisted Management
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice Provides management strategy functions
  */
 abstract contract Whitelisted is Initializable, IWhitelisted {

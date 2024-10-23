@@ -11,8 +11,8 @@ import "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 import "openzeppelin-contracts/token/ERC20/extensions/IERC20Metadata.sol";
 /**
- * @title Mint OBTC Strategy
- * @author Obelisk
+ * @title Mint enzoBTC Strategy
+ * @author EnzoNetwork
  * @notice Receive ERC20 BTC assets to mint OBTC
  */
 
@@ -21,10 +21,10 @@ contract MintStrategy is Initializable, Version, Dao, Whitelisted, Call, IMintSt
 
     // ERC20 BTC asset address
     IERC20 public underlyingToken;
-    // OBTC asset address
+    // enzoBTC asset address
     address public assetAddr;
 
-    address public obeliskNetwork;
+    address public EnzoNetwork;
 
     StrategyStatus internal depositStatus;
     StrategyStatus internal withdrawStatus;
@@ -32,8 +32,8 @@ contract MintStrategy is Initializable, Version, Dao, Whitelisted, Call, IMintSt
     // Withdrawal delay
     uint256 internal withdrawalDelayBlocks;
 
-    modifier onlyObeliskNetwork() {
-        if (msg.sender != obeliskNetwork) revert Errors.PermissionDenied();
+    modifier onlyEnzoNetwork() {
+        if (msg.sender != EnzoNetwork) revert Errors.PermissionDenied();
         _;
     }
 
@@ -49,13 +49,13 @@ contract MintStrategy is Initializable, Version, Dao, Whitelisted, Call, IMintSt
     function initialize(
         address _ownerAddr,
         address _dao,
-        address _obeliskNetwork,
+        address _EnzoNetwork,
         address _underlyingToken,
         address _assetAddr,
         uint256 _withdrawalDelayBlocks
     ) public initializer {
         if (
-            _ownerAddr == address(0) || _dao == address(0) || _obeliskNetwork == address(0)
+            _ownerAddr == address(0) || _dao == address(0) || _EnzoNetwork == address(0)
                 || _underlyingToken == address(0) || _assetAddr == address(0)
         ) {
             revert Errors.InvalidAddr();
@@ -64,7 +64,7 @@ contract MintStrategy is Initializable, Version, Dao, Whitelisted, Call, IMintSt
         __Version_init(_ownerAddr);
         __Dao_init(_dao);
 
-        obeliskNetwork = _obeliskNetwork;
+        EnzoNetwork = _EnzoNetwork;
 
         underlyingToken = IERC20(_underlyingToken);
         assetAddr = _assetAddr;
@@ -111,13 +111,13 @@ contract MintStrategy is Initializable, Version, Dao, Whitelisted, Call, IMintSt
     /**
      * Transfer user deposit assets
      * Check whether the deposited token is consistent with the minted token of the strategy
-     * @param _token token address,such as: oBTC addr
+     * @param _token token address,such as: enzoBTC addr
      * @param _user user addr
      * @param _amount deposit amount
      */
     function deposit(address _token, address _user, uint256 _amount)
         external
-        onlyObeliskNetwork
+        onlyEnzoNetwork
         assetCheck(_token)
         returns (uint256)
     {
@@ -143,11 +143,11 @@ contract MintStrategy is Initializable, Version, Dao, Whitelisted, Call, IMintSt
     /**
      * User Withdrawal
      * Check whether the withdrawal token is consistent with the strategy's burn token
-     * @param _token token address,such as: oBTC addr
+     * @param _token token address,such as: enzoBTC addr
      * @param _user user address
      * @param _amount withdrawal amount
      */
-    function withdraw(address _token, address _user, uint256 _amount) external onlyObeliskNetwork assetCheck(_token) {
+    function withdraw(address _token, address _user, uint256 _amount) external onlyEnzoNetwork assetCheck(_token) {
         if (withdrawStatus != StrategyStatus.Open) {
             revert Errors.WithdrawalNotOpen();
         }
@@ -224,12 +224,12 @@ contract MintStrategy is Initializable, Version, Dao, Whitelisted, Call, IMintSt
     }
 
     /**
-     * change obeliskNetwork
-     * @param _obeliskNetwork obeliskNetwork contract address
+     * change EnzoNetwork
+     * @param _EnzoNetwork EnzoNetwork contract address
      */
-    function setObeliskNetwork(address _obeliskNetwork) external onlyDao {
-        emit ObeliskNetworkChanged(obeliskNetwork, _obeliskNetwork);
-        obeliskNetwork = _obeliskNetwork;
+    function setEnzoNetwork(address _EnzoNetwork) external onlyDao {
+        emit EnzoNetworkChanged(EnzoNetwork, _EnzoNetwork);
+        EnzoNetwork = _EnzoNetwork;
     }
 
     /**

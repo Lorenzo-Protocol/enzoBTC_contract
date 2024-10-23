@@ -11,7 +11,7 @@ import "src/interfaces/IVersion.sol";
 
 /**
  * @title Version management contract
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice Encapsulates the basic functions of
  * UUPSUpgradeable contract,
  * OwnableUpgradeable contract,

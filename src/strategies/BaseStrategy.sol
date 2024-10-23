@@ -14,7 +14,7 @@ import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title Provide basic staking strategy
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice When the strategy does not set strategyToken, the user deposit is recorded through the state
  */
 abstract contract BaseStrategy is Initializable, Version, Dao, Whitelisted, Call, IBaseStrategy {

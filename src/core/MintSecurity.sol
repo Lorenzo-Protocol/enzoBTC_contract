@@ -4,14 +4,14 @@ pragma solidity 0.8.12;
 import "src/libraries/Errors.sol";
 import "src/libraries/ECDSA.sol";
 import "src/interfaces/IMintSecurity.sol";
-import "src/interfaces/IObeliskNetwork.sol";
+import "src/interfaces/IEnzoNetwork.sol";
 import "src/modules/Version.sol";
 import "src/modules/Dao.sol";
 import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title Security module for minting tokens
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice mint transactions must be approved by a sufficient number of guardians
  */
 contract MintSecurity is Initializable, Version, Dao, IMintSecurity {
@@ -30,14 +30,14 @@ contract MintSecurity is Initializable, Version, Dao, IMintSecurity {
 
     mapping(bytes32 => address) public mintedMsgHash;
 
-    address public obeliskNetwork;
+    address public enzoNetwork;
 
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(address _ownerAddr, address _dao, address _obeliskNetwork) public initializer {
-        if (_ownerAddr == address(0) || _dao == address(0) || _obeliskNetwork == address(0)) {
+    function initialize(address _ownerAddr, address _dao, address _enzoNetwork) public initializer {
+        if (_ownerAddr == address(0) || _dao == address(0) || _enzoNetwork == address(0)) {
             revert Errors.InvalidAddr();
         }
 
@@ -45,8 +45,8 @@ contract MintSecurity is Initializable, Version, Dao, IMintSecurity {
         __Dao_init(_dao);
 
         MINT_MESSAGE_PREFIX =
-            keccak256(abi.encodePacked(keccak256("obelisk.MINT_MESSAGE_PREFIX"), block.chainid, address(this)));
-        obeliskNetwork = _obeliskNetwork;
+            keccak256(abi.encodePacked(keccak256("enzoNetwork.MINT_MESSAGE_PREFIX"), block.chainid, address(this)));
+        enzoNetwork = _enzoNetwork;
     }
 
     function getGuardianQuorum() external view returns (uint256) {
@@ -187,7 +187,7 @@ contract MintSecurity is Initializable, Version, Dao, IMintSecurity {
 
     /**
      * Once the deposit transaction is signed by the guardians, anyone can mint the corresponding assets.
-     * @param token oBTC token addr
+     * @param token enzoBTC token addr
      * @param txHash BTC deposit tx hash
      * @param destAddr evm addr that receive the token
      * @param stakingOutputIdx BTC tx output index
@@ -213,7 +213,7 @@ contract MintSecurity is Initializable, Version, Dao, IMintSecurity {
         }
         mintedMsgHash[msgHash] = destAddr;
 
-        IObeliskNetwork(obeliskNetwork).mint(token, destAddr, stakingAmount);
+        IEnzoNetwork(enzoNetwork).mint(token, destAddr, stakingAmount);
 
         emit TokenMinted(msgHash, txHash, token, destAddr, stakingOutputIdx, inclusionHeight, stakingAmount);
     }
@@ -221,7 +221,7 @@ contract MintSecurity is Initializable, Version, Dao, IMintSecurity {
     /**
      * If the user's deposit transaction is not a standard deposit,
      * such as a direct transfer, the user's fund recovery application should be accepted.
-     * @param token oBTC token addr
+     * @param token enzoBTC token addr
      * @param txHash BTC deposit tx hash
      * @param destAddr evm addr that receive the token
      * @param stakingOutputIdx BTC tx output index
@@ -241,7 +241,7 @@ contract MintSecurity is Initializable, Version, Dao, IMintSecurity {
             revert Errors.MsgHashAlreadyMint();
         }
         mintedMsgHash[msgHash] = destAddr;
-        IObeliskNetwork(obeliskNetwork).mint(token, destAddr, stakingAmount);
+        IEnzoNetwork(enzoNetwork).mint(token, destAddr, stakingAmount);
 
         emit TokenMinted(msgHash, txHash, token, destAddr, stakingOutputIdx, inclusionHeight, stakingAmount);
     }
@@ -305,12 +305,12 @@ contract MintSecurity is Initializable, Version, Dao, IMintSecurity {
     }
 
     /**
-     * change obeliskNetwork
-     * @param _obeliskNetwork obeliskNetwork contract address
+     * change enzoNetwork
+     * @param _enzoNetwork enzoNetwork contract address
      */
-    function setObeliskNetwork(address _obeliskNetwork) external onlyDao {
-        emit ObeliskNetworkChanged(obeliskNetwork, _obeliskNetwork);
-        obeliskNetwork = _obeliskNetwork;
+    function setEnzoNetwork(address _enzoNetwork) external onlyDao {
+        emit EnzoNetworkChanged(enzoNetwork, _enzoNetwork);
+        enzoNetwork = _enzoNetwork;
     }
 
     /**

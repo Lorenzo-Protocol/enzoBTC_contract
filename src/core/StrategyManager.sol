@@ -12,7 +12,7 @@ import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title Yield Strategy Manager
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice Entry to income strategy
  */
 contract StrategyManager is Initializable, Version, Dao, Whitelisted, IStrategyManager {

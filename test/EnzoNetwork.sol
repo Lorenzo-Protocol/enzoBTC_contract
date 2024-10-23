@@ -4,12 +4,11 @@ pragma solidity 0.8.12;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "forge-std/Script.sol";
-import "src/tokens/OBTC.sol";
-import "src/tokens/OLTC.sol";
-import "src/tokens/OYBTCB2.sol";
-import "src/tokens/OYBTCBBN.sol";
+import "src/tokens/EnzoBTC.sol";
+import "src/tokens/EnzoBTCB2.sol";
+import "src/tokens/EnzoBTCBBN.sol";
 import {TestToken, TestToken2, TestStrategy} from "test/TestContract.sol";
-import "src/core/ObeliskNetwork.sol";
+import "src/core/EnzoNetwork.sol";
 import "src/strategies/DefiStrategy.sol";
 import "src/core/MintSecurity.sol";
 import "src/core/MintStrategy.sol";
@@ -18,14 +17,14 @@ import "src/interfaces/IBaseStrategy.sol";
 import "src/interfaces/IMintStrategy.sol";
 import {ERC1967Proxy} from "openzeppelin-contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-contract ObeliskNetworkTest is Test {
+contract EnzoNetworkTest is Test {
     address _dao = address(1000);
     address _ownerAddr = address(1001);
     address _blackListAdmin = address(1003);
     address _fundManager = address(1004);
 
-    OBTC public _oBTC;
-    ObeliskNetwork public _obeliskNetwork;
+    EnzoBTC public _enzoBTC;
+    EnzoNetwork public _EnzoNetwork;
     StrategyManager public _strategyManager;
     MintSecurity public _mintSecurity;
     DefiStrategy public _defiStrategyB2;
@@ -36,14 +35,14 @@ contract ObeliskNetworkTest is Test {
     TestToken2 public _testBTC2;
 
     function setUp() public {
-        address _obeliskNetworkImple = address(new ObeliskNetwork());
-        _obeliskNetwork = ObeliskNetwork(payable(new ERC1967Proxy(_obeliskNetworkImple, "")));
+        address _EnzoNetworkImple = address(new EnzoNetwork());
+        _EnzoNetwork = EnzoNetwork(payable(new ERC1967Proxy(_EnzoNetworkImple, "")));
 
-        console.log("=====obeliskNetwork=====", address(_obeliskNetwork));
+        console.log("=====enzoBTC=====", address(_EnzoNetwork));
 
-        _oBTC = new OBTC(address(_obeliskNetwork), _dao);
+        _enzoBTC = new EnzoBTC(address(_EnzoNetwork), _dao);
 
-        console.log("=====obBTC=====", address(_oBTC));
+        console.log("=====enzoBTC=====", address(_enzoBTC));
 
         address _mintSecurityImple = address(new MintSecurity());
         _mintSecurity = MintSecurity(payable(new ERC1967Proxy(_mintSecurityImple, "")));
@@ -59,22 +58,20 @@ contract ObeliskNetworkTest is Test {
         _mintStrategy = MintStrategy(payable(new ERC1967Proxy(_mintStrategyImple, "")));
 
         _testBTC = new TestToken("test BTC", "tBTC", _dao, _dao);
-        _mintStrategy.initialize(_ownerAddr, _dao, address(_obeliskNetwork), address(_testBTC), address(_oBTC), 50400);
+        _mintStrategy.initialize(_ownerAddr, _dao, address(_EnzoNetwork), address(_testBTC), address(_enzoBTC), 50400);
 
         _mintStrategy2 = MintStrategy(payable(new ERC1967Proxy(_mintStrategyImple, "")));
         _testBTC2 = new TestToken2("test BTC 2", "tBTC2", _dao, _dao);
-        _mintStrategy2.initialize(_ownerAddr, _dao, address(_obeliskNetwork), address(_testBTC2), address(_oBTC), 50400);
+        _mintStrategy2.initialize(_ownerAddr, _dao, address(_EnzoNetwork), address(_testBTC2), address(_enzoBTC), 50400);
 
         address[] memory _tokenAddrs = new address[](1);
-        _tokenAddrs[0] = address(_oBTC);
+        _tokenAddrs[0] = address(_enzoBTC);
         address[] memory _mintStrategies = new address[](2);
         _mintStrategies[0] = address(_mintStrategy);
         _mintStrategies[1] = address(_mintStrategy2);
-        _obeliskNetwork.initialize(
-            _ownerAddr, _dao, _blackListAdmin, address(_mintSecurity), _tokenAddrs, _mintStrategies
-        );
+        _EnzoNetwork.initialize(_ownerAddr, _dao, _blackListAdmin, address(_mintSecurity), _tokenAddrs, _mintStrategies);
 
-        _mintSecurity.initialize(_ownerAddr, _dao, address(_obeliskNetwork));
+        _mintSecurity.initialize(_ownerAddr, _dao, address(_EnzoNetwork));
         // MINT_MESSAGE_PREFIX 0x5706b75259dd61ada5d917cc9b0e797d76b00ca645bc55beb09d4c8ff153ec16
         console.logBytes32(_mintSecurity.MINT_MESSAGE_PREFIX());
 
@@ -95,8 +92,8 @@ contract ObeliskNetworkTest is Test {
         _defiStrategyBBL = DefiStrategy(payable(new ERC1967Proxy(_defiStrategyImple, "")));
         console.log("=====defiStrategyB2=====", address(_defiStrategyB2));
         console.log("=====defiStrategyBBL=====", address(_defiStrategyBBL));
-        OYBTCB2 nBTCb2 = new OYBTCB2(address(_defiStrategyB2), _dao);
-        OYBTCBBN nBTCbbl = new OYBTCBBN(address(_defiStrategyBBL), _dao);
+        EnzoBTCB2 nBTCb2 = new EnzoBTCB2(address(_defiStrategyB2), _dao);
+        EnzoBTCBBN nBTCbbl = new EnzoBTCBBN(address(_defiStrategyBBL), _dao);
         console.log("=====nBTCb2=====", address(nBTCb2));
         console.log("=====nBTCbbl=====", address(nBTCbbl));
 
@@ -108,7 +105,7 @@ contract ObeliskNetworkTest is Test {
             _fundManager,
             10000,
             10000000000000,
-            address(_oBTC),
+            address(_enzoBTC),
             address(nBTCb2),
             _whitelistedStrategies
         );
@@ -119,7 +116,7 @@ contract ObeliskNetworkTest is Test {
             _fundManager,
             10000,
             10000000000000,
-            address(_oBTC),
+            address(_enzoBTC),
             address(nBTCbbl),
             _whitelistedStrategies
         );
@@ -136,7 +133,7 @@ contract ObeliskNetworkTest is Test {
     }
 
     function testMint() public {
-        address token = address(_oBTC);
+        address token = address(_enzoBTC);
         bytes32 txHash = 0x2c8c452919c6f1d89dec39215926ac4b1e1e258eff8d3d3019120986a76a738a;
         address destAddr = 0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8;
         uint256 stakingOutputIdx = 0;
@@ -163,7 +160,7 @@ contract ObeliskNetworkTest is Test {
             token, txHash, destAddr, stakingOutputIdx, inclusionHeight, stakingAmount, sortedGuardianSignatures
         );
 
-        assertEq(_oBTC.balanceOf(destAddr), stakingAmount);
+        assertEq(_enzoBTC.balanceOf(destAddr), stakingAmount);
     }
 
     function testBulkMint() public {
@@ -175,7 +172,7 @@ contract ObeliskNetworkTest is Test {
         uint256[] memory stakingAmounts = new uint256[](1);
         MintSecurity.Signature[][] memory bulkSortedGuardianSignatures = new MintSecurity.Signature[][](1);
 
-        address token = address(_oBTC);
+        address token = address(_enzoBTC);
         tokens[0] = token;
         bytes32 txHash = 0x2c8c452919c6f1d89dec39215926ac4b1e1e258eff8d3d3019120986a76a738a;
         txHashs[0] = txHash;
@@ -215,7 +212,7 @@ contract ObeliskNetworkTest is Test {
             bulkSortedGuardianSignatures
         );
 
-        assertEq(_oBTC.balanceOf(destAddr), stakingAmount);
+        assertEq(_enzoBTC.balanceOf(destAddr), stakingAmount);
     }
 
     function testFailMint() public {
@@ -225,7 +222,7 @@ contract ObeliskNetworkTest is Test {
     }
 
     function testFailMint2() public {
-        address token = address(_oBTC);
+        address token = address(_enzoBTC);
         bytes32 txHash = 0x2c8c452919c6f1d89dec39215926ac4b1e1e258eff8d3d3019120986a76a738a;
         address destAddr = 0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8;
         uint256 stakingOutputIdx = 0;
@@ -254,7 +251,7 @@ contract ObeliskNetworkTest is Test {
     }
 
     function testFailMint3() public {
-        address token = address(_oBTC);
+        address token = address(_enzoBTC);
         bytes32 txHash = 0x2c8c452919c6f1d89dec39215926ac4b1e1e258eff8d3d3019120986a76a738a;
         address destAddr = 0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8;
         uint256 stakingOutputIdx = 0;
@@ -280,7 +277,7 @@ contract ObeliskNetworkTest is Test {
     function testMint4() public {
         vm.prank(address(_dao));
         _mintSecurity.setGuardianQuorum(2);
-        address token = address(_oBTC);
+        address token = address(_enzoBTC);
         bytes32 txHash = 0x2c8c452919c6f1d89dec39215926ac4b1e1e258eff8d3d3019120986a76a738a;
         address destAddr = 0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8;
         uint256 stakingOutputIdx = 0;
@@ -307,22 +304,22 @@ contract ObeliskNetworkTest is Test {
         testMint();
         bytes memory _to = bytes("0xd6027dfc74fa9b2cffb447ee1b372ed6ba45ae615992b54a6fb3b11cb6e3a491");
         vm.prank(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
-        _obeliskNetwork.requestWithdrawals(0x000000000000000000000000000000000000000b, address(_oBTC), 10000, _to);
+        _EnzoNetwork.requestWithdrawals(0x000000000000000000000000000000000000000b, address(_enzoBTC), 10000, _to);
     }
 
     function testRequestWithdraws() public {
         testMint();
         bytes memory _to = bytes("0xd6027dfc74fa9b2cffb447ee1b372ed6ba45ae615992b54a6fb3b11cb6e3a491");
         vm.prank(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
-        _oBTC.approve(address(_obeliskNetwork), 10000);
+        _enzoBTC.approve(address(_EnzoNetwork), 10000);
 
         vm.prank(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
-        _obeliskNetwork.requestWithdrawals(0x000000000000000000000000000000000000000b, address(_oBTC), 10000, _to);
+        _EnzoNetwork.requestWithdrawals(0x000000000000000000000000000000000000000b, address(_enzoBTC), 10000, _to);
     }
 
     function testFailPauseRequestWithdraws() public {
         vm.prank(address(_dao));
-        _obeliskNetwork.pause();
+        _EnzoNetwork.pause();
 
         testRequestWithdraws();
     }
@@ -333,19 +330,19 @@ contract ObeliskNetworkTest is Test {
         vm.roll(50500);
         uint256[] memory _requestIds = new uint256[](1);
         _requestIds[0] = 0;
-        _obeliskNetwork.claimWithdrawals(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8, _requestIds);
+        _EnzoNetwork.claimWithdrawals(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8, _requestIds);
     }
 
     function testFailPauseClaimWithdrawals() public {
         testRequestWithdraws();
 
         vm.prank(address(_dao));
-        _obeliskNetwork.pause();
+        _EnzoNetwork.pause();
 
         vm.roll(50500);
         uint256[] memory _requestIds = new uint256[](1);
         _requestIds[0] = 0;
-        _obeliskNetwork.claimWithdrawals(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8, _requestIds);
+        _EnzoNetwork.claimWithdrawals(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8, _requestIds);
     }
 
     function testFailClaimWithdrawals() public {
@@ -353,7 +350,7 @@ contract ObeliskNetworkTest is Test {
 
         uint256[] memory _requestIds = new uint256[](1);
         _requestIds[0] = 0;
-        _obeliskNetwork.claimWithdrawals(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8, _requestIds);
+        _EnzoNetwork.claimWithdrawals(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8, _requestIds);
     }
 
     function testFailClaimWithdrawals2() public {
@@ -363,7 +360,7 @@ contract ObeliskNetworkTest is Test {
         vm.roll(50500);
         uint256[] memory _requestIds = new uint256[](1);
         _requestIds[0] = 0;
-        _obeliskNetwork.claimWithdrawals(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8, _requestIds);
+        _EnzoNetwork.claimWithdrawals(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8, _requestIds);
     }
 
     function testClaimWithdrawals2() public {
@@ -374,99 +371,46 @@ contract ObeliskNetworkTest is Test {
         vm.roll(50500);
         uint256[] memory _requestIds = new uint256[](1);
         _requestIds[0] = 0;
-        _obeliskNetwork.claimWithdrawals(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8, _requestIds);
+        _EnzoNetwork.claimWithdrawals(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8, _requestIds);
     }
 
     function testAddBlackList() public {
         vm.prank(_blackListAdmin);
-        _obeliskNetwork.addBlackList(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
-        assertTrue(_obeliskNetwork.isBlackListed(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8));
+        _EnzoNetwork.addBlackList(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
+        assertTrue(_EnzoNetwork.isBlackListed(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8));
     }
 
     function testRemoveBlackList() public {
         vm.prank(_blackListAdmin);
-        _obeliskNetwork.removeBlackList(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
-        assertTrue(!_obeliskNetwork.isBlackListed(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8));
+        _EnzoNetwork.removeBlackList(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
+        assertTrue(!_EnzoNetwork.isBlackListed(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8));
     }
 
     function testFailSetBlackListAdmin() public {
-        _obeliskNetwork.setBlackListAdmin(address(1));
+        _EnzoNetwork.setBlackListAdmin(address(1));
     }
 
     function testSetBlackListAdmin() public {
         vm.prank(_dao);
-        _obeliskNetwork.setBlackListAdmin(address(1));
-        assertEq(_obeliskNetwork.blackListAdmin(), address(1));
-    }
-
-    function testAddAsset() public returns (address) {
-        OLTC _oltc = new OLTC(address(_obeliskNetwork), _dao);
-        vm.prank(_dao);
-        _obeliskNetwork.addAsset(address(_oltc));
-        return address(_oltc);
+        _EnzoNetwork.setBlackListAdmin(address(1));
+        assertEq(_EnzoNetwork.blackListAdmin(), address(1));
     }
 
     function testFailAddAsset() public {
         vm.prank(_dao);
-        _obeliskNetwork.addAsset(address(1));
-    }
-
-    function testFailAddAsset2() public {
-        OLTC _oltc = new OLTC(address(_obeliskNetwork), _dao);
-        _obeliskNetwork.addAsset(address(_oltc));
-    }
-
-    function testFailAddAsset3() public {
-        address _oltc = testAddAsset();
-        vm.prank(_dao);
-        _obeliskNetwork.addAsset(address(_oltc));
-    }
-
-    function testGetAssetList() public {
-        address _oltc = testAddAsset();
-        address[] memory assetList = _obeliskNetwork.getAssetList();
-
-        assertEq(assetList.length, 2);
-        assertEq(assetList[0], address(_oBTC));
-        assertEq(assetList[1], _oltc);
-    }
-
-    function testRemoveAsset() public {
-        address _oltc = testAddAsset();
-        vm.prank(_dao);
-        _obeliskNetwork.removeAsset(address(_oltc));
-        address[] memory assetList = _obeliskNetwork.getAssetList();
-        assertEq(assetList.length, 1);
-        assertEq(assetList[0], address(_oBTC));
-    }
-
-    function testSetAssetStatus() public {
-        address _oltc = testAddAsset();
-        assertTrue(!_obeliskNetwork.assetPaused(_oltc));
-        vm.prank(_dao);
-        _obeliskNetwork.setAssetStatus(address(_oltc), false);
-        assertTrue(!_obeliskNetwork.assetPaused(_oltc));
-        vm.prank(_dao);
-        _obeliskNetwork.setAssetStatus(address(_oltc), true);
-        assertTrue(_obeliskNetwork.assetPaused(_oltc));
-        vm.prank(_dao);
-        _obeliskNetwork.removeAsset(address(_oltc));
-        address[] memory assetList = _obeliskNetwork.getAssetList();
-        assertEq(assetList.length, 1);
-        assertEq(assetList[0], address(_oBTC));
-        assertTrue(!_obeliskNetwork.assetPaused(_oltc));
+        _EnzoNetwork.addAsset(address(1));
     }
 
     function testSetWithdrawalDelayBlocks() public {
-        assertEq(_obeliskNetwork.withdrawalDelayBlocks(), 50400);
+        assertEq(_EnzoNetwork.withdrawalDelayBlocks(), 50400);
         vm.prank(_dao);
-        _obeliskNetwork.setWithdrawalDelayBlocks(20);
-        assertEq(_obeliskNetwork.withdrawalDelayBlocks(), 20);
+        _EnzoNetwork.setWithdrawalDelayBlocks(20);
+        assertEq(_EnzoNetwork.withdrawalDelayBlocks(), 20);
     }
 
     function testFailSetWithdrawalDelayBlocks() public {
         vm.prank(_dao);
-        _obeliskNetwork.setWithdrawalDelayBlocks(72001);
+        _EnzoNetwork.setWithdrawalDelayBlocks(72001);
     }
 
     function testGetGuardianQuorum() public {
@@ -550,17 +494,17 @@ contract ObeliskNetworkTest is Test {
     function testDeposit() public {
         testMint();
         vm.prank(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
-        _oBTC.approve(address(_strategyManager), 100000);
+        _enzoBTC.approve(address(_strategyManager), 100000);
 
         vm.prank(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
         _strategyManager.deposit(address(_defiStrategyB2), 100000);
 
         vm.prank(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
-        _oBTC.approve(address(_strategyManager), 100000);
+        _enzoBTC.approve(address(_strategyManager), 100000);
 
         vm.prank(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
         _strategyManager.deposit(address(_defiStrategyBBL), 100000);
-        assertEq(_oBTC.balanceOf(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8), 120000000 - 100000 * 2);
+        assertEq(_enzoBTC.balanceOf(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8), 120000000 - 100000 * 2);
     }
 
     function testFailDeposit() public {
@@ -571,14 +515,14 @@ contract ObeliskNetworkTest is Test {
         _defiStrategyB2.setStrategyStatus(IBaseStrategy.StrategyStatus.Close, IBaseStrategy.StrategyStatus.Close);
 
         vm.prank(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
-        _oBTC.approve(address(_defiStrategyB2), 100000);
+        _enzoBTC.approve(address(_defiStrategyB2), 100000);
         vm.prank(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
-        _oBTC.approve(address(_defiStrategyBBL), 100000);
+        _enzoBTC.approve(address(_defiStrategyBBL), 100000);
         vm.prank(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
         _strategyManager.deposit(address(_defiStrategyB2), 100000);
         vm.prank(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8);
         _strategyManager.deposit(address(_defiStrategyBBL), 100000);
-        assertEq(_oBTC.balanceOf(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8), 120000000 - 100000 * 2);
+        assertEq(_enzoBTC.balanceOf(0x3535d10Fc0E85fDBC810bF828F02C9BcB7C2EBA8), 120000000 - 100000 * 2);
     }
 
     function testFailWithdrawal() public {
@@ -602,10 +546,10 @@ contract ObeliskNetworkTest is Test {
         _testBTC.approve(address(_mintStrategy), 100000000);
 
         vm.prank(address(1));
-        _obeliskNetwork.deposit(address(_mintStrategy), address(_oBTC), 100000000);
+        _EnzoNetwork.deposit(address(_mintStrategy), address(_enzoBTC), 100000000);
 
         assertEq(_testBTC.balanceOf(address(_mintStrategy)), 100000000);
-        assertEq(_oBTC.balanceOf(address(1)), 100000000);
+        assertEq(_enzoBTC.balanceOf(address(1)), 100000000);
     }
 
     function testTBTCDeposit2() public {
@@ -615,45 +559,45 @@ contract ObeliskNetworkTest is Test {
         _testBTC2.approve(address(_mintStrategy2), 1000000000000000000);
 
         vm.prank(address(1));
-        _obeliskNetwork.deposit(address(_mintStrategy2), address(_oBTC), 1000000000000000000);
+        _EnzoNetwork.deposit(address(_mintStrategy2), address(_enzoBTC), 1000000000000000000);
 
         assertEq(_testBTC2.balanceOf(address(_mintStrategy2)), 1000000000000000000);
-        assertEq(_oBTC.balanceOf(address(1)), 100000000);
+        assertEq(_enzoBTC.balanceOf(address(1)), 100000000);
     }
 
     function testTBTCWithdrawal() public {
         testTBTCDeposit();
         vm.prank(address(1));
-        _oBTC.approve(address(_obeliskNetwork), 100000000);
+        _enzoBTC.approve(address(_EnzoNetwork), 100000000);
         vm.prank(address(1));
-        _obeliskNetwork.requestWithdrawals(address(_mintStrategy), address(_oBTC), 100000000, "0x");
+        _EnzoNetwork.requestWithdrawals(address(_mintStrategy), address(_enzoBTC), 100000000, "0x");
 
         assertEq(_testBTC.balanceOf(address(_mintStrategy)), 100000000);
-        assertEq(_oBTC.balanceOf(address(1)), 0);
+        assertEq(_enzoBTC.balanceOf(address(1)), 0);
     }
 
     function testFailTBTCWithdrawal() public {
         testTBTCDeposit();
         vm.prank(address(1));
-        _oBTC.approve(address(_obeliskNetwork), 100000000);
+        _enzoBTC.approve(address(_EnzoNetwork), 100000000);
 
         vm.prank(_dao);
         _mintStrategy.setStrategyStatus(IMintStrategy.StrategyStatus.Open, IMintStrategy.StrategyStatus.Close);
         vm.prank(address(1));
-        _obeliskNetwork.requestWithdrawals(address(_mintStrategy), address(_oBTC), 100000000, "0x");
+        _EnzoNetwork.requestWithdrawals(address(_mintStrategy), address(_enzoBTC), 100000000, "0x");
 
         assertEq(_testBTC.balanceOf(address(_mintStrategy)), 100000000);
-        assertEq(_oBTC.balanceOf(address(1)), 0);
+        assertEq(_enzoBTC.balanceOf(address(1)), 0);
     }
 
     function testTBTCWithdrawal2() public {
         testTBTCDeposit2();
         vm.prank(address(1));
-        _oBTC.approve(address(_obeliskNetwork), 100000000);
+        _enzoBTC.approve(address(_EnzoNetwork), 100000000);
         vm.prank(address(1));
-        _obeliskNetwork.requestWithdrawals(address(_mintStrategy2), address(_oBTC), 100000000, "0x");
+        _EnzoNetwork.requestWithdrawals(address(_mintStrategy2), address(_enzoBTC), 100000000, "0x");
         assertEq(_testBTC2.balanceOf(address(_mintStrategy2)), 1000000000000000000);
-        assertEq(_oBTC.balanceOf(address(1)), 0);
+        assertEq(_enzoBTC.balanceOf(address(1)), 0);
     }
 
     function testTBTCClaim() public {
@@ -663,9 +607,9 @@ contract ObeliskNetworkTest is Test {
         vm.roll(50500);
         uint256[] memory _requestIds = new uint256[](1);
         _requestIds[0] = 0;
-        _obeliskNetwork.claimWithdrawals(address(1), _requestIds);
+        _EnzoNetwork.claimWithdrawals(address(1), _requestIds);
         assertEq(_testBTC.balanceOf(address(_mintStrategy)), 0);
-        assertEq(_oBTC.balanceOf(address(1)), 0);
+        assertEq(_enzoBTC.balanceOf(address(1)), 0);
     }
 
     function testTBTCClaim2() public {
@@ -675,9 +619,9 @@ contract ObeliskNetworkTest is Test {
         vm.roll(50500);
         uint256[] memory _requestIds = new uint256[](1);
         _requestIds[0] = 0;
-        _obeliskNetwork.claimWithdrawals(address(1), _requestIds);
+        _EnzoNetwork.claimWithdrawals(address(1), _requestIds);
         assertEq(_testBTC2.balanceOf(address(_mintStrategy2)), 0);
-        assertEq(_oBTC.balanceOf(address(1)), 0);
+        assertEq(_enzoBTC.balanceOf(address(1)), 0);
     }
 
     function testTBTCClaim3() public {
@@ -693,12 +637,12 @@ contract ObeliskNetworkTest is Test {
         uint256[] memory _requestIds = new uint256[](2);
         _requestIds[0] = 0;
         _requestIds[1] = 1;
-        _obeliskNetwork.claimWithdrawals(address(1), _requestIds);
+        _EnzoNetwork.claimWithdrawals(address(1), _requestIds);
 
         assertEq(_testBTC.balanceOf(address(_mintStrategy)), 0);
-        assertEq(_oBTC.balanceOf(address(1)), 0);
+        assertEq(_enzoBTC.balanceOf(address(1)), 0);
         assertEq(_testBTC2.balanceOf(address(_mintStrategy2)), 0);
-        assertEq(_oBTC.balanceOf(address(1)), 0);
+        assertEq(_enzoBTC.balanceOf(address(1)), 0);
     }
 
     function testExecute() public {
@@ -796,48 +740,48 @@ contract ObeliskNetworkTest is Test {
     }
 
     function testTokenBlackList() public {
-        vm.prank(address(_obeliskNetwork));
-        _oBTC.whiteListMint(100000000000, address(1));
-        vm.prank(address(_obeliskNetwork));
-        _oBTC.whiteListMint(100000000000, address(2));
+        vm.prank(address(_EnzoNetwork));
+        _enzoBTC.whiteListMint(100000000000, address(1));
+        vm.prank(address(_EnzoNetwork));
+        _enzoBTC.whiteListMint(100000000000, address(2));
 
-        assertEq(_oBTC.balanceOf(address(1)), 100000000000);
+        assertEq(_enzoBTC.balanceOf(address(1)), 100000000000);
         vm.prank(_dao);
-        _oBTC.addBlackList(address(1));
-        assertEq(true, _oBTC.isBlackListed(address(1)));
-        assertEq(false, _oBTC.isBlackListed(address(2)));
+        _enzoBTC.addBlackList(address(1));
+        assertEq(true, _enzoBTC.isBlackListed(address(1)));
+        assertEq(false, _enzoBTC.isBlackListed(address(2)));
     }
 
     function testFailTokenBlackList2() public {
         testTokenBlackList();
         vm.prank(address(1));
-        _oBTC.transfer(address(2), 10000);
+        _enzoBTC.transfer(address(2), 10000);
     }
 
     function testFailTokenBlackList3() public {
         testTokenBlackList();
         vm.prank(address(2));
-        _oBTC.transfer(address(1), 10000);
+        _enzoBTC.transfer(address(1), 10000);
     }
 
     function testChangeTokenAdmin() public {
-        assertEq(_oBTC.blackListAdmin(), _dao);
-        _oBTC.setBlackListAdmin(address(1));
-        assertEq(_oBTC.blackListAdmin(), address(1));
+        assertEq(_enzoBTC.blackListAdmin(), _dao);
+        _enzoBTC.setBlackListAdmin(address(1));
+        assertEq(_enzoBTC.blackListAdmin(), address(1));
     }
 
     function testTotalWithdrawalAmount() public {
         testTBTCDeposit();
 
         vm.prank(address(1));
-        _oBTC.approve(address(_obeliskNetwork), 100000000);
-        address _nativeBTC = _obeliskNetwork.nativeWithdrawStrategy();
+        _enzoBTC.approve(address(_EnzoNetwork), 100000000);
+        address _nativeBTC = _EnzoNetwork.nativeWithdrawStrategy();
         vm.prank(address(1));
-        _obeliskNetwork.requestWithdrawals(_nativeBTC, address(_oBTC), 100000000, "0x");
+        _EnzoNetwork.requestWithdrawals(_nativeBTC, address(_enzoBTC), 100000000, "0x");
 
         assertEq(_testBTC.balanceOf(address(_mintStrategy)), 100000000);
-        assertEq(_oBTC.balanceOf(address(1)), 0);
-        assertEq(_obeliskNetwork.totalWithdrawalAmount(address(_nativeBTC)), 100000000);
-        assertEq(_obeliskNetwork.totalWithdrawalAmount(address(_mintStrategy)), 0);
+        assertEq(_enzoBTC.balanceOf(address(1)), 0);
+        assertEq(_EnzoNetwork.totalWithdrawalAmount(address(_nativeBTC)), 100000000);
+        assertEq(_EnzoNetwork.totalWithdrawalAmount(address(_mintStrategy)), 0);
     }
 }

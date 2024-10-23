@@ -7,7 +7,7 @@ import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title dao permission contract
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice This is an abstract contract, although there are no unimplemented functions.
  * This contract is used in other contracts as a basic contract for dao's authority management.
  */

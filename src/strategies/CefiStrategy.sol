@@ -5,7 +5,7 @@ import "src/strategies/BaseStrategy.sol";
 
 /**
  * @title cefi strategy
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice Collect assets and help users complete cefi arbitrage
  */
 contract CefiStrategy is BaseStrategy {

@@ -7,7 +7,7 @@ import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title Blacklist management
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice Provides a freezing function when unexpected withdrawals occur, such as withdrawals by attackers
  */
 abstract contract BlackList is Initializable, IBlackList {

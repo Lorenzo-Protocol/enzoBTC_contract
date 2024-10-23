@@ -2,7 +2,7 @@
 pragma solidity 0.8.12;
 
 import "src/libraries/Errors.sol";
-import "src/interfaces/IObeliskNetwork.sol";
+import "src/interfaces/IEnzoNetwork.sol";
 import "src/interfaces/IMintStrategy.sol";
 import "src/modules/Dao.sol";
 import "src/modules/Assets.sol";
@@ -13,11 +13,11 @@ import "src/interfaces/IMintStrategy.sol";
 import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
- * @title Obelisk Network
- * @author Obelisk
+ * @title EnzoNetwork
+ * @author EnzoNetwork
  * @notice Manage asset minting and withdrawals
  */
-contract ObeliskNetwork is Initializable, Version, Dao, Assets, WithdrawalRequest, Whitelisted, IObeliskNetwork {
+contract EnzoNetwork is Initializable, Version, Dao, Assets, WithdrawalRequest, Whitelisted, IEnzoNetwork {
     // mintSecurity is responsible for checking the guardian's minting signature
     address public mintSecurityAddr;
 
@@ -94,7 +94,7 @@ contract ObeliskNetwork is Initializable, Version, Dao, Assets, WithdrawalReques
      * User application for withdrawing underlying assets
      * @param _strategy deposit strategy
      * @param _token he address of the asset to be minted
-     * @param _withdrawalAmount withdrawal amount, oBTC amount
+     * @param _withdrawalAmount withdrawal amount, enzoBTC amount
      * @param _withdrawalAddr withdrawal addr, if the _strategy is not nativeBTCStrategy, it can be empty
      */
     function requestWithdrawals(
@@ -136,7 +136,7 @@ contract ObeliskNetwork is Initializable, Version, Dao, Assets, WithdrawalReques
         if (!ok) {
             revert Errors.TransferFailed();
         }
-        // _withdrawalAmount is oBTC amount, decimals is 8
+        // _withdrawalAmount is enzoBTC amount, decimals is 8
         _requestWithdrawals(_strategy, _token, _sender, _withdrawalAmount, _withdrawalAddr);
     }
 
@@ -267,7 +267,7 @@ contract ObeliskNetwork is Initializable, Version, Dao, Assets, WithdrawalReques
      * @notice Contract type id
      */
     function typeId() public pure override returns (bytes32) {
-        return keccak256("ObeliskNetwork");
+        return keccak256("EnzoNetwork");
     }
 
     /**

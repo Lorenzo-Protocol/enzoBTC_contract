@@ -9,7 +9,7 @@ import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title Withdrawal request contract
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice Provides basic functions for withdrawal orders.
  */
 abstract contract WithdrawalRequest is Initializable, BlackList, IWithdrawalRequest {

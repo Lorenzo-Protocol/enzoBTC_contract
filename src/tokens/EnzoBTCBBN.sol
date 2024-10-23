@@ -4,12 +4,12 @@ pragma solidity 0.8.12;
 import "src/tokens/BaseToken.sol";
 
 /**
- * @title Obelisk Yield
- * @author Obelisk
+ * @title EnzoNetwork Yield
+ * @author EnzoNetwork
  * @notice Babylon Yield
  */
-contract OYBTCBBN is BaseToken {
+contract EnzoBTCBBN is BaseToken {
     constructor(address _tokenAdmin, address _blackListAdmin)
-        BaseToken("Obelisk Yield BTC-BBN", "oyBTC-BBN", _tokenAdmin, _blackListAdmin)
+        BaseToken("EnzoBTC Yield BTC-BBN", "enzoBTC-BBN", _tokenAdmin, _blackListAdmin)
     {}
 }

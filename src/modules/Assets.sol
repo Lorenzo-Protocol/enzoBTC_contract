@@ -8,7 +8,7 @@ import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title Asset Management
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice Provide asset management function module
  */
 abstract contract Assets is Initializable, IAssets {

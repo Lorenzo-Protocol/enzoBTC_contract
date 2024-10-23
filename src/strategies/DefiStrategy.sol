@@ -5,7 +5,7 @@ import "src/strategies/BaseStrategy.sol";
 
 /**
  * @title Defi Strategy
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice Obtain income through DeFi
  */
 contract DefiStrategy is BaseStrategy {

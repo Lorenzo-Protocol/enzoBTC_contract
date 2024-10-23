@@ -9,7 +9,7 @@ import "src/modules/BlackList.sol";
 
 /**
  * @title Provide basic token functions
- * @author Obelisk
+ * @author EnzoNetwork
  * @notice tokenAdmin has the right to mint and burn tokens.
  * blackListAdmin has the right to set blacklists.
  */

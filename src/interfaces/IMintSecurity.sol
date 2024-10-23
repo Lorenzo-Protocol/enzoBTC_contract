@@ -5,7 +5,7 @@ interface IMintSecurity {
     event GuardianQuorumChanged(uint256 newValue);
     event GuardianAdded(address guardian);
     event GuardianRemoved(address guardian);
-    event ObeliskNetworkChanged(address _oldObeliskNetwork, address _obeliskNetwork);
+    event EnzoNetworkChanged(address _oldEnzoNetwork, address _EnzoNetwork);
     event TokenMinted(
         bytes32 indexed msgHash,
         bytes32 txHash,
