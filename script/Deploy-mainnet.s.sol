@@ -19,7 +19,10 @@ import {ERC1967Proxy} from "openzeppelin-contracts/proxy/ERC1967/ERC1967Proxy.so
 
 // forge script script/Deploy-mainnet.s.sol:MainnetDeployEnzoNetwork  --rpc-url $MAINNET_RPC_URL --broadcast --verify  --retries 10 --delay 30
 contract MainnetDeployEnzoNetwork is Script {
-    address _dao = 0x8cC49b20c1d8B7129D76ca3E9EFacD968728ca95;
+    address _dao = 0x125baD0a49D6c2055D6C67707eFB38F88316dFf3;
+    address _owner = 0x125baD0a49D6c2055D6C67707eFB38F88316dFf3;
+    address fbtc = 0xC96dE26018A54D51c097160568752c4E3BD6C364;
+    address btcb = 0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c;
 
     function setUp() public {}
 
@@ -27,14 +30,14 @@ contract MainnetDeployEnzoNetwork is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        address[] memory proposers = new address[](2);
-        address[] memory executors = new address[](1);
-        proposers[0] = 0x3E29BF7B650b8910F3B4DDda5b146e8716c683a6; // nodedao.eth
-        proposers[1] = _dao;
-        executors[0] = _dao;
+        // address[] memory proposers = new address[](2);
+        // address[] memory executors = new address[](1);
+        // proposers[0] = 0x3E29BF7B650b8910F3B4DDda5b146e8716c683a6; // nodedao.eth
+        // proposers[1] = _dao;
+        // executors[0] = _dao;
 
-        address _owner = address(new TimelockController(3600, proposers, executors, address(0)));
-        console.log("=====timelock=====", address(_owner));
+        // address _owner = address(new TimelockController(3600, proposers, executors, address(0)));
+        // console.log("=====timelock=====", address(_owner));
 
         address _EnzoNetworkImple = address(new EnzoNetwork());
         EnzoNetwork _EnzoNetwork = EnzoNetwork(payable(new ERC1967Proxy(_EnzoNetworkImple, "")));
@@ -56,7 +59,12 @@ contract MainnetDeployEnzoNetwork is Script {
 
         // console.log("=====strategyManager=====", address(_strategyManager));
 
-        address[] memory _mintStrategies = deployMintStrategys(_owner, address(_EnzoNetwork), address(_enzoBTC));
+        address btcToken = fbtc;
+        if (block.chainid != 1) {
+            btcToken = btcb;
+        }
+        
+        address[] memory _mintStrategies = deployMintStrategys(_owner, address(_EnzoNetwork), address(_enzoBTC), btcToken);
         address[] memory _tokenAddrs = new address[](1);
         _tokenAddrs[0] = address(_enzoBTC);
         _EnzoNetwork.initialize(_owner, _dao, _dao, address(_mintSecurity), _tokenAddrs, _mintStrategies);
@@ -76,18 +84,17 @@ contract MainnetDeployEnzoNetwork is Script {
         vm.stopBroadcast();
     }
 
-    function deployMintStrategys(address _ownerAddr, address _EnzoNetwork, address _enzoBTC)
+    function deployMintStrategys(address _ownerAddr, address _EnzoNetwork, address _enzoBTC, address _btcToken)
         internal
         returns (address[] memory)
     {
         address _mintStrategyImple = address(new MintStrategy());
         MintStrategy _mintStrategy = MintStrategy(payable(new ERC1967Proxy(_mintStrategyImple, "")));
-        address fbtc = 0xC96dE26018A54D51c097160568752c4E3BD6C364;
+        
+        console.log("=====mintStrategy=====", address(_mintStrategy));
+        console.log("=====btc erctoken=====", address(_btcToken));
 
-        console.log("=====mintStrategy-fbtc=====", address(_mintStrategy));
-        console.log("=====fbtc=====", address(fbtc));
-
-        _mintStrategy.initialize(_ownerAddr, _dao, address(_EnzoNetwork), address(fbtc), address(_enzoBTC), 21600); // delay 3 day
+        _mintStrategy.initialize(_ownerAddr, _dao, address(_EnzoNetwork), address(_btcToken), address(_enzoBTC), 21600); // delay 3 day
 
         address[] memory _mintStrategies = new address[](1);
         _mintStrategies[0] = address(_mintStrategy);
