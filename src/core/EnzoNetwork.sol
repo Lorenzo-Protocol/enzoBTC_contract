@@ -4,6 +4,7 @@ pragma solidity 0.8.12;
 import "src/libraries/Errors.sol";
 import "src/interfaces/IEnzoNetwork.sol";
 import "src/interfaces/IMintStrategy.sol";
+import "src/interfaces/IMintableBurnable.sol";
 import "src/modules/Dao.sol";
 import "src/modules/Assets.sol";
 import "src/modules/Version.sol";
@@ -73,7 +74,8 @@ contract EnzoNetwork is Initializable, Version, Dao, Assets, WithdrawalRequest, 
             revert Errors.InvalidAddr();
         }
 
-        IBaseToken(_token).whiteListMint(_mintAmount, _to);
+        address _admin = _getAssetAdmin(_token);
+        IMintableBurnable(_admin).whiteListMint(_mintAmount, _to);
     }
 
     /**
@@ -86,7 +88,8 @@ contract EnzoNetwork is Initializable, Version, Dao, Assets, WithdrawalRequest, 
         _checkWhitelisted(_strategy);
         address _user = msg.sender;
         uint256 _mintAmount = IMintStrategy(_strategy).deposit(_token, _user, _amount);
-        IBaseToken(_token).whiteListMint(_mintAmount, _user);
+        address _admin = _getAssetAdmin(_token);
+        IMintableBurnable(_admin).whiteListMint(_mintAmount, _user);
         emit Deposit(_strategy, _token, _mintAmount);
     }
 
@@ -166,7 +169,8 @@ contract EnzoNetwork is Initializable, Version, Dao, Assets, WithdrawalRequest, 
             uint256 _requestId = _requestIds[i];
 
             (uint256 _withdrawalAmount, address _token) = _claimWithdrawals(_receiver, _requestId);
-            IBaseToken(_token).whiteListBurn(_withdrawalAmount, address(this));
+            address _admin = _getAssetAdmin(_token);
+            IMintableBurnable(_admin).whiteListBurn(_withdrawalAmount, address(this));
         }
     }
 
@@ -255,6 +259,10 @@ contract EnzoNetwork is Initializable, Version, Dao, Assets, WithdrawalRequest, 
         mintSecurityAddr = _mintSecurityAddr;
     }
 
+    function setAssetAdmin(address _token, address _tokenAdmin) external onlyDao {
+        _setAssetAdmin(_token, _tokenAdmin);
+    }
+
     /**
      * Owner set dao addr
      * @param _dao dao addr
@@ -274,7 +282,7 @@ contract EnzoNetwork is Initializable, Version, Dao, Assets, WithdrawalRequest, 
      * @notice Contract version
      */
     function version() public pure override returns (uint8) {
-        return 1;
+        return 2;
     }
 
     /**

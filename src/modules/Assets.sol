@@ -14,6 +14,7 @@ import "openzeppelin-contracts-upgradeable/proxy/utils/Initializable.sol";
 abstract contract Assets is Initializable, IAssets {
     address[] internal assetList;
     mapping(address => bool) public assetPaused;
+    mapping(address => address) public assetAdmin;
 
     function __Assets_init(address[] calldata _tokenAddrs) internal onlyInitializing {
         for (uint256 i = 0; i < _tokenAddrs.length; ++i) {
@@ -34,6 +35,16 @@ abstract contract Assets is Initializable, IAssets {
         if (_isSupportedAsset(_token)) {
             revert Errors.AssetAlreadyExist();
         }
+    }
+
+    function _getAssetAdmin(address _token) internal view returns (address) {
+        address _admin = assetAdmin[_token];
+
+        if (_admin == address(0)) {
+            return (_token);
+        }
+
+        return (_admin);
     }
 
     function _isSupportedAsset(address _token) internal view returns (bool) {
@@ -86,10 +97,19 @@ abstract contract Assets is Initializable, IAssets {
         assetPaused[_token] = _AssetStatus;
     }
 
+    function _setAssetAdmin(address _token, address _assetAdmin) internal {
+        if (!_isSupportedAsset(_token)) {
+            revert Errors.AssetNotSupported();
+        }
+
+        emit AssetAdminChanged(assetAdmin[_token], _assetAdmin);
+        assetAdmin[_token] = _assetAdmin;
+    }
+
     /**
      * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
-    uint256[50] private __gap;
+    uint256[49] private __gap;
 }

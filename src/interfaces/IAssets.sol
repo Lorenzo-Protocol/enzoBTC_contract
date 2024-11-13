@@ -5,4 +5,5 @@ interface IAssets {
     event AssetAdded(address _token);
     event AssetRemoved(address _token);
     event AssetStatusChanged(bool _status);
+    event AssetAdminChanged(address _oldAdmin, address _newAdmin);
 }
