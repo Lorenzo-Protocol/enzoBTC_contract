@@ -101,7 +101,13 @@ abstract contract WithdrawalRequest is Initializable, BlackList, IWithdrawalRequ
         );
         totalWithdrawalAmount[_strategy] += _withdrawalAmount;
         emit WithdrawalsRequest(
-            _token, _receiver, withdrawalQueue[_receiver].length - 1, _withdrawalAmount, _withdrawalAddr, _blockNumber
+            _strategy,
+            _token,
+            _receiver,
+            withdrawalQueue[_receiver].length - 1,
+            _withdrawalAmount,
+            _withdrawalAddr,
+            _blockNumber
         );
     }
 
@@ -147,6 +153,7 @@ abstract contract WithdrawalRequest is Initializable, BlackList, IWithdrawalRequ
 
         totalWithdrawalAmount[_userWithdrawal.strategy] -= _userWithdrawal.withdrawalAmount;
         emit WithdrawalsClaimed(
+            _userWithdrawal.strategy,
             _userWithdrawal.token,
             _receiver,
             _requestId,

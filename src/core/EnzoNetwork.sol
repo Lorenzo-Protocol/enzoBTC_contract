@@ -127,6 +127,10 @@ contract EnzoNetwork is Initializable, Version, Dao, Assets, WithdrawalRequest, 
             if (msg.value != 0) {
                 revert Errors.InvalidAmount();
             }
+
+            if (_withdrawalAddr.length == 0) {
+                revert Errors.InvalidParameter();
+            }
         }
 
         // Check if the token is supported
@@ -282,7 +286,7 @@ contract EnzoNetwork is Initializable, Version, Dao, Assets, WithdrawalRequest, 
      * @notice Contract version
      */
     function version() public pure override returns (uint8) {
-        return 2;
+        return 3;
     }
 
     /**

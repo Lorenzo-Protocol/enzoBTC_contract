@@ -6,6 +6,7 @@ interface IWithdrawalRequest {
     event NativeBTCPausedChanged(bool _oldStatus, bool _status);
     event NonNativeWithdrawalFeeChanged(uint256 _oldNonNativeWithdrawalFee, uint256 _nonNativeWithdrawalFee);
     event WithdrawalsRequest(
+        address _strategy,
         address _token,
         address _receiver,
         uint256 _requestId,
@@ -14,6 +15,7 @@ interface IWithdrawalRequest {
         uint256 _blockNumber
     );
     event WithdrawalsClaimed(
+        address _strategy,
         address _token,
         address _receiver,
         uint256 _requestId,
